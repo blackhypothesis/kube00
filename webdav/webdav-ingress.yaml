@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+  name: nginx-camera
+  namespace: camera
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: k8s.io/ingress-nginx
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webdav-ingress
+  namespace: camera
+spec:
+  ingressClassName: nginx-camera
+  rules:
+  - host: kube00.luma
+    http:
+      paths:
+      - backend:
+          service:
+            name: wiki-server-node-port
+            port:
+              number: 80
+        path: /webdav
+
+        pathType: Exact

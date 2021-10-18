@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: wiki
+spec:
+  selector:
+    matchLabels:
+      app: pgadmin
+  replicas: 1
+  template:
+    metadata:
+      name: pgadmin
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+      - name: pgadmin
+        image: dpage/pgadmin4
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+        env:
+        - name: PGADMIN_DEFAULT_EMAIL
+          value: sleep24@bluewin.ch
+        - name: PGADMIN_DEFAULT_PASSWORD
+          value: jupitersaturn
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin-service
+  namespace: wiki
+spec:
+  type: ClusterIP
+  selector:
+    app: pgadmin
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+
+

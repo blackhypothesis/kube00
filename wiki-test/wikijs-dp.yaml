@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    meta.helm.sh/release-name: wikijs
+    meta.helm.sh/release-namespace: wiki-test
+  creationTimestamp: "2022-11-07T07:48:02Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: wikijs
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: wiki
+    app.kubernetes.io/version: latest
+    helm.sh/chart: wiki-2.2.18
+  name: wikijs
+  namespace: wiki-test
+  resourceVersion: "16203"
+  uid: 530e4f09-25d7-4f10-95ea-a1d3154eba70
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: wikijs
+      app.kubernetes.io/name: wiki
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: wikijs
+        app.kubernetes.io/name: wiki
+    spec:
+      containers:
+      - env:
+        - name: DB_TYPE
+          value: postgres
+        - name: DB_HOST
+          value: wikijs-postgresql
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: wiki
+        - name: DB_USER
+          value: postgres
+        - name: DB_SSL
+          value: "false"
+        - name: DB_SSL_CA
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              key: postgresql-password
+              name: wikijs-postgresql
+        - name: HA_ACTIVE
+          value: "false"
+        image: requarks/wiki:latest
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: wiki
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        securityContext: {}
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /healthz
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: wikijs
+      serviceAccountName: wikijs
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2022-11-07T07:48:43Z"
+    lastUpdateTime: "2022-11-07T07:48:43Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2022-11-07T07:48:02Z"
+    lastUpdateTime: "2022-11-07T07:48:43Z"
+    message: ReplicaSet "wikijs-7ff848c4c7" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
